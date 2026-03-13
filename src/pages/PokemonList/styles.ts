@@ -65,5 +65,25 @@ export const createStyles = (theme: Theme) =>
       width: 72,
       height: 72,
     },
+    logoutButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: 16,
+      padding: 12,
+      backgroundColor: theme.colors.primary,
+      borderRadius: 8,
+    },
+    logoutButtonContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: theme.colors.surface,
+    },
+    logoutButtonText: {
+      backgroundColor: theme.colors.surface,
+      fontSize: 16,
+      fontWeight: '600',
+    },
   });
 

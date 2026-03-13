@@ -2,6 +2,12 @@ import React from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
 import { createStyles } from './styles';
 import { useTheme } from '../../global/themes';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../routes';
+import PokemonDetailScreen from '../PokemonDetail';
+
+
 
 type PokemonListItem = {
   id: number;
@@ -18,6 +24,12 @@ const MOCK_POKEMON_LIST: PokemonListItem[] = [
     types: ['grass', 'poison'],
   },
   {
+    id: 2,
+    name: 'ivysaur',
+    imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/2.png',
+    types: ['grass', 'poison'],
+  },
+  {
     id: 4,
     name: 'charmander',
     imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png',
@@ -29,14 +41,47 @@ const MOCK_POKEMON_LIST: PokemonListItem[] = [
     imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png',
     types: ['water'],
   },
+  {
+    id: 8,
+    name: 'Wartortle',
+    imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/8.png',
+    types: ['water'],
+  },
+  {
+    id: 25,
+    name: 'pikachu',
+    imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png',
+    types: ['electric'],
+  },
+  {
+    id: 104,
+    name: 'Cubone',
+    imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/104.png',
+    types: ['Ground'],
+  },
+  {
+    id: 105,
+    name: 'Marowak',
+    imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/105.png',
+    types: ['Ground'],
+  },
 ];
 
 export default function PokemonListScreen() {
   const theme = useTheme();
   const styles = createStyles(theme);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'PokemonList'>>();
+
+  const handleLogout = () => {
+    // Navegar de volta para a tela de login
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Login' }],
+    });
+  };
 
   const renderItem = ({ item }: { item: PokemonListItem }) => (
-    <TouchableOpacity style={styles.card} activeOpacity={0.8}>
+    <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={() => navigation.navigate('PokemonDetail', { id: item.id })}>
       <View style={styles.cardLeft}>
         <Text style={styles.cardName}>{item.name}</Text>
         <View style={styles.typeContainer}>
@@ -53,6 +98,11 @@ export default function PokemonListScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.logoutButtonContainer}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
       <Text style={styles.headerTitle}>Pokédex</Text>
       <FlatList
         data={MOCK_POKEMON_LIST}
