@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../routes';
 import PokemonDetailScreen from '../PokemonDetail';
+import { useLayoutEffect } from 'react';
 
 
 
@@ -80,6 +81,18 @@ export default function PokemonListScreen() {
     });
   };
 
+  useLayoutEffect(() => {
+  navigation.setOptions({
+    headerRight: () => (
+      <TouchableOpacity 
+      style={ styles.buttonSair }
+      onPress={handleLogout}>
+        <Text>Logout</Text>
+      </TouchableOpacity>
+    ),
+  });
+}, [navigation]);
+
   const renderItem = ({ item }: { item: PokemonListItem }) => (
     <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={() => navigation.navigate('PokemonDetail', { id: item.id })}>
       <View style={styles.cardLeft}>
@@ -98,11 +111,6 @@ export default function PokemonListScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.logoutButtonContainer}>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>Logout</Text>
-        </TouchableOpacity>
-      </View>
       <Text style={styles.headerTitle}>Pokédex</Text>
       <FlatList
         data={MOCK_POKEMON_LIST}

@@ -85,5 +85,15 @@ export const createStyles = (theme: Theme) =>
       fontSize: 16,
       fontWeight: '600',
     },
+    buttonSair: {
+      width: 100,
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.colors.accent,
+      borderRadius: 40,
+      borderWidth: 1,
+      borderColor: theme.colors.primaryDark,
+    }
   });
 
