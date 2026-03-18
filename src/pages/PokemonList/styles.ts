@@ -90,7 +90,7 @@ export const createStyles = (theme: Theme) =>
       height: 40,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: theme.colors.accent,
+      backgroundColor: theme.colors.primary,
       borderRadius: 40,
       borderWidth: 1,
       borderColor: theme.colors.primaryDark,
