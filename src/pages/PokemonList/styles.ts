@@ -96,4 +96,3 @@ export const createStyles = (theme: Theme) =>
       borderColor: theme.colors.primaryDark,
     }
   });
-
