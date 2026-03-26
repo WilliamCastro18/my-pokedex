@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, 
+         Text, 
+         Image, 
+         TextInput, 
+         TouchableOpacity, 
+         ActivityIndicator } from 'react-native';
 import Logo from '../../assets/logo.png';
 import { createStyles } from './styles';
 import { useTheme } from '../../global/themes';
@@ -22,10 +27,10 @@ export default function LoginScreen() {
       console.log('Login action', { email, password });
       navigation.reset({
         index: 0,
-        routes: [{ name: 'PokemonList' }],
-      });
+        routes: [{name: "PokemonList"}],
+      })
       setIsLoading(false);
-    }, 1500);
+    }, 1500);    
   };
 
   const isButtonDisabled = isLoading || !email || !password;
@@ -36,43 +41,42 @@ export default function LoginScreen() {
         <Image source={Logo} style={styles.logo} />
         <Text style={styles.textTop}>Pokédex</Text>
       </View>
-
+      
       <View style={styles.boxMid}>
-        <Text style={styles.titleInput}>E-mail</Text>
-        <View style={styles.boxInput}>
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder="seuemail@exemplo.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            style={styles.textInput}
-          />
-        </View>
-        <Text style={styles.titleInput}>Senha</Text>
-        <View style={styles.boxInput}>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder="********"
-            secureTextEntry
-            style={styles.textInput}
-          />
-        </View>
+      <Text style={styles.titleInput}>E-mail</Text>
+      <View style={styles.boxInput}>
+      <TextInput
+          value={email}
+          onChangeText={setEmail}
+          placeholder="seuemail@exemplo.com"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          style={styles.textInput}
+        />
+      </View>
+      <Text style={styles.titleInput}>Senha</Text>      
+      <View style={styles.boxInput}>
+      <TextInput
+          value={password}
+          onChangeText={setPassword}
+          placeholder="********"
+          secureTextEntry
+          style={styles.textInput}
+        />
+      </View>        
       </View>
       <View style={styles.boxBottom}>
-        <TouchableOpacity
-          style={[styles.buttonEntrar, isButtonDisabled && { opacity: 0.4 }]}
-          onPress={handleLogin}
-          disabled={isButtonDisabled}
+      <TouchableOpacity 
+        style={[styles.buttonEntrar, isButtonDisabled && {opacity: 0.2}]} 
+        onPress={handleLogin}
+        disabled={isButtonDisabled}
         >
-          {isLoading ?
-            <ActivityIndicator color={theme.colors.text} /> :
-            <Text style={styles.buttonEntrarText}>Entrar</Text>
-          }
+          { isLoading ? 
+          <ActivityIndicator color={theme.colors.text}/> :
+          <Text style={styles.buttonEntrarText}>Entrar</Text>
+          }          
         </TouchableOpacity>
       </View>
     </View>
   );
 };
-

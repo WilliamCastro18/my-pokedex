@@ -1,31 +1,48 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
 import { createStyles } from './styles';
 import { useTheme } from '../../global/themes';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../routes';
-import PokemonDetailScreen from '../PokemonDetail';
-import { fetchPokemonListPage, type PokemonListItemUI } from '../../services/pokeapi';
-import { useSafeAreaFrame } from 'react-native-safe-area-context';
-import { ActivityIndicator } from 'react-native/types_generated/index';
+import { fetchPokemonListPage, type PokemonListItemUI } from '../../services/pokeapi';  
 
 const PAGE_SIZE = 10;
 
 export default function PokemonListScreen() {
+  const TYPE_COLORS: Record<string, string> = {
+    normal: '#A8A77A',
+    fire: '#EE8130',
+    water: '#6390F0',
+    electric: '#F7D02C',
+    grass: '#7AC74C',
+    ice: '#96D9D6',
+    fighting: '#C22E28',
+    poison: '#A33EA1',
+    ground: '#E2BF65',
+    flying: '#A98FF3',
+    psychic: '#F95587',
+    bug: '#A6B91A',
+    rock: '#B6A136',
+    ghost: '#735797',
+    dragon: '#6F35FC',
+    dark: '#705746',
+    steel: '#B7B7CE',
+    fairy: '#D685AD',
+  }
   const theme = useTheme();
   const styles = createStyles(theme);
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'PokemonList'>>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'PokemonList'>> ();
 
-  const [items, setItems] = useState<PokemonListItemUI[]>([]);
-  const [offset, setOffset] = useState(0);
-  const [hasNextPage, setHasNextPage] = useState(false);
+  const [items, setItems] = useState<PokemonListItemUI[]>([])
+  const [offset, setOffset] = useState(0)
+  const [hasNextPage, setHasNextPage] = useState(true)
 
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const [error, setError] = useState<string | null>(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  
+  const [error, setError] = useState<string | null>(null)
 
   async function loadInitial() {
     try {
@@ -55,6 +72,7 @@ async function loadMore() {
     } finally {
       setIsLoadingMore(false);
     }
+  }
 
   async function refreshList() {
     try {
@@ -72,38 +90,32 @@ async function loadMore() {
   }
 
   useEffect(() => {
-    loadInitial
-  }, []);
+    loadInitial()
+  }, [])
 
   const handleLogout = () => {
-    // Navegar de volta para a tela de login
+    console.log('Logout');
     navigation.reset({
       index: 0,
-      routes: [{ name: 'Login' }],
-    });
+      routes: [{name: "Login"}],
+    })
   };
 
-  useLayoutEffect(() => {
-  navigation.setOptions({
-    headerRight: () => (
-      <TouchableOpacity style={ styles.buttonSair } onPress={handleLogout}>
-        <Text>Logout</Text>
-      </TouchableOpacity>
-    ),
-  });
-}, [navigation]);
-
   const renderItem = ({ item }: { item: PokemonListItemUI }) => (
-    <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={() => navigation.navigate('PokemonDetail', { id: item.id })}>
+    <TouchableOpacity
+      style={styles.card} 
+      activeOpacity={0.8} 
+      onPress={() => navigation.navigate('PokemonDetail', {id: item.id})}
+    >
       <View style={styles.cardLeft}>
         <Text style={styles.cardName}>{item.name}</Text>
-        <View style={styles.typeContainer}>
+         {<View style={styles.typeContainer}>
           {item.types.map((type) => (
-            <View key={type} style={styles.typeBadge}>
+            <View key={type} style={[styles.typeBadge, { backgroundColor: TYPE_COLORS[type] ?? '#A8A8A8'}]}>
               <Text style={styles.typeText}>{type}</Text>
             </View>
           ))}
-        </View> 
+        </View>} 
       </View>
       <Image source={{ uri: item.imageUrl }} style={styles.cardImage} />
     </TouchableOpacity>
@@ -113,11 +125,11 @@ async function loadMore() {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
-        <Text style={{ marginTop: 16, color: theme.colors.text }}>Carregando lista ...</Text>
+        <Text style={{ marginTop: 16, color: theme.colors.text }}>Carregando lista (simulado)...</Text>
       </View>
     );
   }
-  if (error && items.length === 0) {
+  if (error && items.length == 0) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <Text style={{ color: theme.colors.text, marginBottom: 16 }}>{error}</Text>
@@ -127,7 +139,12 @@ async function loadMore() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.headerTitle}>Pokédex</Text>
+      <View style={styles.boxTop}>
+        <Text style={styles.headerTitle}>Pokédex</Text>
+        <TouchableOpacity style={styles.buttonSair} onPress={handleLogout}>
+          <Text style={styles.buttonSairText}>Sair</Text>
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={items}
         keyExtractor={(item) => String(item.id)}
@@ -139,8 +156,8 @@ async function loadMore() {
         refreshing={isRefreshing}
         ListFooterComponent={
           isLoadingMore ? (
-            <View style={{paddingVertical: 16}}>
-              <ActivityIndicator color={theme.colors.primary} />
+            <View style={{ paddingVertical: 16 }}>
+              <ActivityIndicator color={theme.colors.primary}></ActivityIndicator>
             </View>
           ) : null
         }
@@ -148,4 +165,3 @@ async function loadMore() {
     </View>
   );
 };
-}

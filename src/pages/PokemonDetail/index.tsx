@@ -1,85 +1,100 @@
-import React from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import { ActivityIndicator, View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { createStyles } from './styles';
 import { useTheme } from '../../global/themes';
 import { useRoute } from '@react-navigation/native';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../routes';
-import { fetchPokemonDetail, 
-         fetchPokemonSpecies,
-            type PokemonDetailResponse,  
-            type PokemonSpeciesResponse } from '../../services/pokeapi';
-
-// const MOCK_POKEMON_DETAIL = {
-//   id: 25,
-//   name: 'pikachu',
-//   imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png',
-//   types: ['electric'],
-//   height: 4,
-//   weight: 60,
-//   stats: [
-//     { name: 'hp', value: 35 },
-//     { name: 'attack', value: 55 },
-//     { name: 'defense', value: 40 },
-//     { name: 'speed', value: 90 },
-//   ],
-//   description:
-//     'Whenever Pikachu comes across something new, it blasts it with a jolt of electricity. If you come across a blackened berry, it is evidence that this Pokémon mistook the intensity of its charge.',
-// };
+import { fetchPokemonDetail, type PokemonDetailResponse ,fetchPokemonSpecies, type PokemonSpeciesResponse} from '../../services/pokeapi';
 
 export default function PokemonDetailScreen() {
+  const TYPE_COLORS: Record<string, string> = {
+    normal: '#A8A77A',
+    fire: '#EE8130',
+    water: '#6390F0',
+    electric: '#F7D02C',
+    grass: '#7AC74C',
+    ice: '#96D9D6',
+    fighting: '#C22E28',
+    poison: '#A33EA1',
+    ground: '#E2BF65',
+    flying: '#A98FF3',
+    psychic: '#F95587',
+    bug: '#A6B91A',
+    rock: '#B6A136',
+    ghost: '#735797',
+    dragon: '#6F35FC',
+    dark: '#705746',
+    steel: '#B7B7CE',
+    fairy: '#D685AD',
+  }
   const theme = useTheme();
   const styles = createStyles(theme);
   const route = useRoute<RouteProp<RootStackParamList, 'PokemonDetail'>>();
   const { id } = route.params;
 
-  const [pokemon, setPokemon] = React.useState<PokemonDetailResponse | null>(null);
-  const [description, setDescription] = React.useState<string | null>(null);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
+  const [pokemon, setPokemon] = useState<PokemonDetailResponse | null>(null);
+  const [pokemonDescription, setPokemonDescription] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-function getPokemonDescriptionFromSpecies(
-  species: PokemonSpeciesResponse,
-): string | null {
-  const ptEntry = species.flavor_text_entries.find(
-    (entry) => entry.language.name === 'pt-BR'
-  );
-  if (ptEntry) {
-    return ptEntry.flavor_text.replace(/\s+/g, ' ').replace(/\f/g, ' ').trim();
+  function getPokemonDescriptionFromSpecies(
+    species: PokemonSpeciesResponse,
+  ): string | null {
+    const ptEntry = species.flavor_text_entries.find(
+      (entry) => entry.language.name === 'pt-BR'
+    );
+    if (ptEntry) {
+      return ptEntry.flavor_text.replace(/\s+/g, ' ').replace(/\f/g, ' ').trim();
+    }
+    const enEntry = species.flavor_text_entries.find(
+      (entry) => entry.language.name === 'en',
+    );
+    if (enEntry) {
+      return enEntry.flavor_text.replace(/\s+/g, ' ').replace(/\f/g, ' ').trim();
+    }
+    return null;
   }
-  const enEntry = species.flavor_text_entries.find(
-    (entry) => entry.language.name === 'en',
-  );
-  if (enEntry) {
-    return enEntry.flavor_text.replace(/\s+/g, ' ').replace(/\f/g, ' ').trim();
-  }
-  return null;
-}
 
-  React.useEffect(() => {
-    const controller = new AbortController();
-    
-    async function loadPokemon(){
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function loadPokemon() {
       try {
-        setLoading(true);
-        setError(null);
+        setIsLoading(true)
+        setError(null)
 
         const [detail, species] = await Promise.all([
-          fetchPokemonDetail(id, { signal: controller.signal }),
-          fetchPokemonSpecies(id, { signal: controller.signal }),
-        ]);
+          fetchPokemonDetail(id, {signal: controller.signal}),
+          fetchPokemonSpecies(id, {signal: controller.signal}),
+        ])
 
-        setPokemon(detail);
-        setDescription(getPokemonDescriptionFromSpecies(species));
-      } catch (e) {
-        if ((e as Error).name !== 'AbortError') {
-          setError('Falha ao carregar detalhes do Pokémon');
+        setPokemon(detail)
+        setPokemonDescription(getPokemonDescriptionFromSpecies(species))
+      }
+      catch (e) {
+        if ((e as Error).name !== "AbortError") {
+          setError("Não foi possível carregar os dados do pokemon")
         }
       }
+      finally {
+        setIsLoading(false)
+      }
     }
-      loadPokemon();
-      return () => {controller.abort();}
-  }, [id]);
+
+    loadPokemon()
+
+    return () => { controller.abort() }
+  }, [id])
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <Text style={{ marginTop: 16, color: theme.colors.text }}>Carregando detalhes (simulado)...</Text>
+      </View>
+    );
+  }
 
   if (error || !pokemon) {
     return (
@@ -88,7 +103,7 @@ function getPokemonDescriptionFromSpecies(
           {error ?? 'Erro inesperado na simulação.'}
         </Text>
         <TouchableOpacity
-          //onPress={() => navigation.goBack()}
+          // onPress={() => navigation.goBack()}
           style={{
             paddingHorizontal: 16,
             paddingVertical: 10,
@@ -105,7 +120,7 @@ function getPokemonDescriptionFromSpecies(
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.sectionText}>
-        ID INFORMADO: {id}
+        ID Recebido: {id}
       </Text>
       <View style={styles.header}>
         <View style={styles.nameRow}>
@@ -115,11 +130,12 @@ function getPokemonDescriptionFromSpecies(
 
         <View style={styles.typeContainer}>
           {pokemon.types.map(({type}) => (
-            <View key={type.name} style={styles.typeBadge}>
+            <View key={type.name} style={[styles.typeBadge, { backgroundColor: TYPE_COLORS[type.name] ?? '#A8A8A8'}]}>
               <Text style={styles.typeText}>{type.name}</Text>
             </View>
           ))}
         </View>
+
         {pokemon.sprites.front_default ? (
           <Image source={{ uri: pokemon.sprites.front_default }} style={styles.image} />
         ) : null}
@@ -127,9 +143,7 @@ function getPokemonDescriptionFromSpecies(
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Sobre</Text>
-        <Text style={styles.sectionText}>
-          {description ?? 'Descrição não disponível para este Pokémon.'}
-          </Text>
+        <Text style={styles.sectionText}>{pokemonDescription}</Text>
       </View>
 
       <View style={styles.section}>
